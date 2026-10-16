@@ -12,6 +12,7 @@ from ai import ask_ai
 from prompts import build_prompt_v3
 from weather import weather_text
 from places import load_places, search
+from stock import index_text
 
 load_dotenv()
 URL = f"https://api.telegram.org/bot{os.getenv('TELEGRAM_TOKEN')}"
@@ -51,7 +52,7 @@ def webhook(body: dict):
         else:
             output = "아직 기록이 없어요. /ate 김치찌개 처럼 적어 보세요."
     elif text == "/help":
-        output = "/lunch 점심 메뉴 하나\n/lotto 로또 번호 6개\n/weather 지금 캠퍼스 날씨\n/ate 메뉴 먹은 것 기록\n/history 최근에 먹은 것\n그 밖의 말은 AI가 답해요"
+        output = "/lunch 점심 메뉴 하나\n/lotto 로또 번호 6개\n/weather 지금 캠퍼스 날씨\n/ate 메뉴 먹은 것 기록\n/history 최근에 먹은 것\n그 밖의 말은 AI가 답해요\n/kospi 코스피지수\n/kosdaq 코스닥지수"
     elif text == "/lunch":
         output = random.choice(MENUS)
     elif text == "/lotto":
@@ -60,6 +61,10 @@ def webhook(body: dict):
         output = "이번 주 행운의 번호: " + ", ".join(str(n) for n in numbers)
     elif text == "/weather":
         output = weather_text()
+    elif text == "/kospi": 
+        output = index_text("KOSPI") 
+    elif text == "/kosdaq": 
+        output = index_text("KOSDAQ") 
     elif text.startswith("/"):
         output = "모르는 명령이에요. /help 를 보내 보세요."
     else:
