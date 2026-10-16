@@ -9,12 +9,14 @@ from fastapi import FastAPI
 
 import db
 from ai import ask_ai
-from prompts import build_prompt_v2
+from prompts import build_prompt_v3
 from weather import weather_text
+from places import load_places, search
 
 load_dotenv()
 URL = f"https://api.telegram.org/bot{os.getenv('TELEGRAM_TOKEN')}"
 conn = db.connect()  # 식사 기록 DB (lunch.db). 서버를 껐다 켜도 남는다
+places = load_places("places_sample.csv")
 
 MENUS = ["라면", "햄버거", "마라탕", "샐러드"]
 
@@ -61,7 +63,8 @@ def webhook(body: dict):
     elif text.startswith("/"):
         output = "모르는 명령이에요. /help 를 보내 보세요."
     else:
-        system = build_prompt_v2(weather_text(), db.recent_meals(conn))  # 날씨와 최근 먹은 것을 알려 주는 지침
+        found = search(text, places)
+        system = build_prompt_v3(weather_text(), db.recent_meals(conn), found)
         output = ask_ai(system, text)
 
     requests.get(f"{URL}/sendMessage", params={"chat_id": chat_id, "text": output})  # 답장 보내기

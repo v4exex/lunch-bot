@@ -3,6 +3,8 @@
 - 확인: uv run pytest tests/test_prompts.py
 """
 
+from places import place_text
+
 # V1: 아무 정보도 안 준다 → AI가 그럴듯한 식당·메뉴를 지어낸다 (5단계)
 SYSTEM_PROMPT_V1 = "너는 점심 메뉴를 추천하는 봇이다. 짧게 한국어로 답한다."
 
@@ -36,4 +38,20 @@ def build_prompt_v3(weather, meals, found):
     - 찾은 식당이 없으면 "(질문에 맞는 식당을 목록에서 찾지 못했다)"라고 적는다 (안 적으면 AI가 빈자리를 지어낸다)
     - 이 목록 안에서만 하나 골라 추천하고, 출처 링크를 같이 알려 주게 한다. 없으면 없다고 말하게 한다
     """
-    raise NotImplementedError("Claude와 같이 채울 곳")
+    if meals:
+        eaten = ", ".join(f"{menu}({eaten_at})" for eaten_at, menu in meals)
+    else:
+        eaten = "기록 없음"
+    if found:
+        listing = "\n".join(place_text(place) for place in found)
+    else:
+        listing = "(질문에 맞는 식당을 목록에서 찾지 못했다)"
+    return (
+        "너는 점심 메뉴를 추천하는 봇이다. 짧게 한국어로 답한다.\n"
+        f"지금 캠퍼스 날씨: {weather}\n"
+        f"사용자가 최근에 먹은 것: {eaten}\n"
+        f"캠퍼스 주변 식당 목록(질문에 맞게 찾은 것):\n{listing}\n"
+        "위 목록 안에서만 식당 하나를 골라 이유와 함께 추천하고, 출처 링크를 같이 알려 준다. "
+        "목록에 없는 식당은 절대 말하지 않는다. "
+        "목록에 맞는 식당이 없으면 지어내지 말고 없다고 말한다."
+    )
