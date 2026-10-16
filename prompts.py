@@ -15,7 +15,18 @@ def build_prompt_v2(weather, meals):
     - 날씨와 최근 먹은 것을 고려해 메뉴 하나를 이유와 함께 추천하게 한다
     - 식당 이름은 말하지 않게 한다 ("너는 이 동네 식당을 모른다")
     """
-    raise NotImplementedError("Claude와 같이 채울 곳")
+    if meals:
+        eaten = ", ".join(f"{menu}({eaten_at})" for eaten_at, menu in meals)
+    else:
+        eaten = "기록 없음"
+    return (
+        "너는 점심 메뉴를 추천하는 봇이다. 짧게 한국어로 답한다.\n"
+        f"지금 캠퍼스 날씨: {weather}\n"
+        f"사용자가 최근에 먹은 것: {eaten}\n"
+        "날씨와 최근에 먹은 것을 고려해서 메뉴 하나를 이유와 함께 추천한다. "
+        "최근에 먹은 메뉴는 되도록 피한다.\n"
+        "너는 이 동네 식당을 모른다. 식당 이름은 말하지 않는다."
+    )
 
 
 def build_prompt_v3(weather, meals, found):
